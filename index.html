@@ -1,14 +1,48 @@
-<div class="separator" style="clear: both;"><a href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjtV7_w1VdgqLSFuy2GyOh3pXbGeZFjBOqD2woq1ooNB-gqTMPsdeg-aepMkDJMzQW7XLmRG_gZpVRz8RVG4zckh8HFSZ4JDn99hNKhyFCsUZ8AXoe2DZ28OPZBwnb9kd3vpguaTbp8QJ-TCL-qm3W2VvciKz_C-TDnIropgoAtexfb_UWCygHxib5tj2A/s1495/stock-vector-server-tv-logo-icon-design-1054399679.jpg" style="display: block; padding: 1em 0; text-align: center; "><img alt="" border="0" width="200" data-original-height="1396" data-original-width="1495" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjtV7_w1VdgqLSFuy2GyOh3pXbGeZFjBOqD2woq1ooNB-gqTMPsdeg-aepMkDJMzQW7XLmRG_gZpVRz8RVG4zckh8HFSZ4JDn99hNKhyFCsUZ8AXoe2DZ28OPZBwnb9kd3vpguaTbp8QJ-TCL-qm3W2VvciKz_C-TDnIropgoAtexfb_UWCygHxib5tj2A/s200/stock-vector-server-tv-logo-icon-design-1054399679.jpg"/></a></div>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Live TV</title>
+    <title>Premium Live TV - Crown Access</title>
+    
     <link href="https://vjs.zencdn.net/7.20.3/video-js.min.css" rel="stylesheet" />
+    
     <style>
-        body { background-color: #0a0a0a; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-        .container { max-width: 1000px; margin: 20px auto; padding: 10px; }
-        .player-wrapper { position: relative; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin-bottom: 20px; }
+        body { background-color: #0a0a0a; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+
+        /* লগইন স্ক্রিন স্টাইল */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000;
+        }
+        .login-box {
+            background: rgba(30, 30, 30, 0.9); padding: 40px; border-radius: 20px;
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.4); text-align: center;
+            width: 350px; border: 1px solid #333; backdrop-filter: blur(10px);
+        }
+        .login-box h2 { color: #e50914; margin-bottom: 25px; font-size: 28px; letter-spacing: 2px; }
+        .login-box input {
+            width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444;
+            border-radius: 8px; background: #222; color: white; outline: none; box-sizing: border-box;
+        }
+        .login-box input:focus { border-color: #e50914; }
+        .login-box button {
+            width: 100%; padding: 14px; background: #e50914; color: white;
+            border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
+            margin-top: 20px; transition: 0.3s; font-size: 16px;
+        }
+        .login-box button:hover { background: #b20710; transform: scale(1.02); }
+
+        /* মেইন অ্যাপ কন্টেন্ট (শুরুতে লুকানো) */
+        #main-app { display: none; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; }
+        
+        .header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logout-btn { background: #333; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+
+        .player-wrapper { position: relative; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin-bottom: 20px; border: 1px solid #333; }
         .video-js { width: 100% !important; height: 500px !important; }
         
         /* চ্যানেল লিস্ট স্টাইল */
@@ -17,36 +51,75 @@
         .channel-item:hover { background: #e50914; color: #fff; transform: translateY(-3px); border-color: #e50914; }
         .channel-item.active { background: #e50914; color: #fff; border-color: #fff; }
         
-        .header-title { text-align: center; color: #e50914; font-size: 24px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .header-title { text-align: center; color: #e50914; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; margin: 0; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 10px; }
 
         @media (max-width: 600px) {
             .video-js { height: 250px !important; }
             .channel-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+            .login-box { width: 85%; }
         }
     </style>
 </head>
-<body>
+<body id="body">
 
-<div class="container">
-    <div class="header-title">Premium Live TV</div>
-
-    <div class="player-wrapper">
-        <video id="tv-player" class="video-js vjs-big-play-centered" controls preload="auto" poster="https://i.ibb.co/3pXnB9K/loading.jpg">
-            <p class="vjs-no-js">To view this video please enable JavaScript.</p>
-        </video>
+<div id="login-overlay">
+    <div class="login-box">
+        <h2>CROWN TV</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="checkLogin()">UNLOCK ACCESS</button>
+        <p id="error-msg" style="color: #e50914; margin-top: 15px; font-size: 13px; display: none;">ভুল ইউজারনেম বা পাসওয়ার্ড!</p>
     </div>
+</div>
 
-    <div class="channel-grid" id="playlist">
-        <p style="text-align:center; width:100%;">চ্যানেল লোড হচ্ছে...</p>
+<div id="main-app">
+    <div class="container">
+        <div class="header-nav">
+            <div class="header-title">Premium Live TV</div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="player-wrapper">
+            <video id="tv-player" class="video-js vjs-big-play-centered" controls preload="auto" poster="https://i.ibb.co/3pXnB9K/loading.jpg">
+                <p class="vjs-no-js">To view this video please enable JavaScript.</p>
+            </video>
+        </div>
+
+        <div class="channel-grid" id="playlist">
+            <p style="text-align:center; width:100%;">চ্যানেল লোড হচ্ছে...</p>
+        </div>
     </div>
 </div>
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 <script>
     const m3uUrl = 'https://raw.githubusercontent.com/cctvccplc/Tv-Test/refs/heads/main/BD26.m3u8';
-    const player = videojs('tv-player');
+    let player;
+
+    // লগইন চেক ফাংশন
+    function checkLogin() {
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+
+        if (user === "Crown" && pass === "Crown@12") {
+            sessionStorage.setItem('crownAuth', 'true');
+            showApp();
+        } else {
+            document.getElementById('error-msg').style.display = 'block';
+        }
+    }
+
+    // অ্যাপ দেখানোর ফাংশন
+    function showApp() {
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        if (!player) {
+            player = videojs('tv-player');
+            loadPlaylist();
+        }
+    }
 
     async function loadPlaylist() {
         try {
@@ -72,18 +145,14 @@
                 btn.className = 'channel-item';
                 btn.innerText = channel.name || `Channel ${index + 1}`;
                 btn.onclick = () => {
-                    // অ্যাক্টিভ ক্লাস পরিবর্তন
                     document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
                     btn.classList.add('active');
-                    
-                    // ভিডিও প্লে করা
                     player.src({ src: channel.url, type: 'application/x-mpegURL' });
                     player.play();
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 };
                 playlistElement.appendChild(btn);
 
-                // প্রথম চ্যানেলটি অটো লোড হবে
                 if (index === 0) {
                     player.src({ src: channel.url, type: 'application/x-mpegURL' });
                     btn.classList.add('active');
@@ -92,11 +161,21 @@
 
         } catch (error) {
             console.error('Error fetching M3U:', error);
-            document.getElementById('playlist').innerHTML = '<p style="color:red; text-align:center;">চ্যানেল লোড করতে সমস্যা হচ্ছে। CORS সমস্যার কারণে হতে পারে।</p>';
+            document.getElementById('playlist').innerHTML = '<p style="color:red; text-align:center;">প্লেলিস্ট লোড করতে ব্যর্থ।</p>';
         }
     }
 
-    loadPlaylist();
+    function logout() {
+        sessionStorage.removeItem('crownAuth');
+        location.reload();
+    }
+
+    // পেজ লোড হলে চেক করবে আগে থেকে লগইন আছে কি না
+    window.onload = () => {
+        if (sessionStorage.getItem('crownAuth') === 'true') {
+            showApp();
+        }
+    };
 </script>
 
 </body>
