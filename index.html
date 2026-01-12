@@ -1,3 +1,151 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCTV CC PLC - Live TV</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        .box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        button { width: 95%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        
+        .admin-panel { display: none; background: #fff3cd; border: 2px dashed #ffeeba; padding: 15px; border-radius: 10px; margin-top: 20px; }
+        .tv-list { margin-top: 20px; }
+        .tv-card { background: white; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .play-btn { background: #28a745; width: auto; padding: 8px 20px; text-decoration: none; color: white; border-radius: 5px; font-size: 14px; }
+        .delete-btn { background: #dc3545; width: auto; padding: 8px 12px; margin-left: 10px; }
+        .logout-btn { background: #6c757d; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="login-section" class="box">
+        <h2>TV চ্যানেল লগইন</h2>
+        <input type="text" id="username" placeholder="ইউজারনেম (admin/user)">
+        <input type="password" id="password" placeholder="পাসওয়ার্ড">
+        <button onclick="login()">প্রবেশ করুন</button>
+    </div>
+
+    <div id="main-content" style="display: none;">
+        <button class="logout-btn" onclick="logout()">লগআউট</button>
+        <div class="box">
+            <h2>লাইভ টিভি চ্যানেল লিস্ট</h2>
+            <div id="tv-display" class="tv-list"></div>
+        </div>
+
+        <div id="admin-section" class="admin-panel">
+            <h3>মালিক প্যানেল (নতুন চ্যানেল যোগ করুন)</h3>
+            <input type="text" id="channelName" placeholder="চ্যানেলের নাম">
+            <input type="text" id="channelUrl" placeholder="চ্যানেলের লিঙ্ক (M3U8/URL)">
+            <button onclick="saveChannel()" style="background: #218838;">সেভ করুন</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // আপনার দেওয়া Firebase লিঙ্কটি এখানে কানেক্ট করা হয়েছে
+    const firebaseConfig = {
+        databaseURL: "https://zoyphone-a08f7-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // ১. লগইন সিস্টেম
+    function login() {
+        const u = document.getElementById("username").value;
+        const p = document.getElementById("password").value;
+
+        if (u === "admin" && p === "1234") { // আপনি এখানে আপনার মনের মতো পাসওয়ার্ড দিন
+            localStorage.setItem("userRole", "admin");
+            checkAuth();
+        } else if (u === "user" && p === "1122") {
+            localStorage.setItem("userRole", "user");
+            checkAuth();
+        } else {
+            alert("সঠিক তথ্য দিন!");
+        }
+    }
+
+    // ২. রোল অনুযায়ী পেজ দেখানো
+    function checkAuth() {
+        const role = localStorage.getItem("userRole");
+        if (role) {
+            document.getElementById("login-section").style.display = "none";
+            document.getElementById("main-content").style.display = "block";
+            
+            if (role === "admin") {
+                document.getElementById("admin-section").style.display = "block";
+            }
+            loadData();
+        }
+    }
+
+    // ৩. ডাটাবেজে চ্যানেল সেভ করা
+    function saveChannel() {
+        const name = document.getElementById("channelName").value;
+        const url = document.getElementById("channelUrl").value;
+
+        if (name && url) {
+            database.ref('channels').push({
+                name: name,
+                url: url
+            });
+            alert("চ্যানেল সফলভাবে যোগ হয়েছে!");
+            document.getElementById("channelName").value = "";
+            document.getElementById("channelUrl").value = "";
+        }
+    }
+
+    // ৪. ডাটাবেজ থেকে চ্যানেল লিস্ট দেখানো
+    function loadData() {
+        const role = localStorage.getItem("userRole");
+        database.ref('channels').on('value', (snapshot) => {
+            const display = document.getElementById("tv-display");
+            display.innerHTML = "";
+            
+            snapshot.forEach((item) => {
+                const data = item.val();
+                const key = item.key;
+                
+                display.innerHTML += `
+                    <div class="tv-card">
+                        <span><b>${data.name}</b></span>
+                        <div>
+                            <a class="play-btn" href="${data.url}" target="_blank">Play</a>
+                            ${role === 'admin' ? `<button class="delete-btn" onclick="deleteChannel('${key}')">X</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    // ৫. চ্যানেল ডিলিট করা
+    function deleteChannel(id) {
+        if (confirm("আপনি কি নিশ্চিত?")) {
+            database.ref('channels/' + id).remove();
+        }
+    }
+
+    // ৬. লগআউট
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    // পেজ লোড হলে লগইন চেক করা
+    window.onload = checkAuth;
+</script>
+
+</body>
+</html>
 <div class="separator" style="clear: both;"><a href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjtV7_w1VdgqLSFuy2GyOh3pXbGeZFjBOqD2woq1ooNB-gqTMPsdeg-aepMkDJMzQW7XLmRG_gZpVRz8RVG4zckh8HFSZ4JDn99hNKhyFCsUZ8AXoe2DZ28OPZBwnb9kd3vpguaTbp8QJ-TCL-qm3W2VvciKz_C-TDnIropgoAtexfb_UWCygHxib5tj2A/s1495/stock-vector-server-tv-logo-icon-design-1054399679.jpg" style="display: block; padding: 1em 0; text-align: center; "><img alt="" border="0" width="200" data-original-height="1396" data-original-width="1495" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjtV7_w1VdgqLSFuy2GyOh3pXbGeZFjBOqD2woq1ooNB-gqTMPsdeg-aepMkDJMzQW7XLmRG_gZpVRz8RVG4zckh8HFSZ4JDn99hNKhyFCsUZ8AXoe2DZ28OPZBwnb9kd3vpguaTbp8QJ-TCL-qm3W2VvciKz_C-TDnIropgoAtexfb_UWCygHxib5tj2A/s200/stock-vector-server-tv-logo-icon-design-1054399679.jpg"/></a></div>
 <html lang="bn">
 <head>
@@ -101,3 +249,4 @@
 
 </body>
 </html>
+
