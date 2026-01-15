@@ -68,7 +68,6 @@
 
         <div class="grid-header">Live Channels List</div>
         <div class="channel-grid" id="playlist">
-            <div class="channel-item" onclick="playBPL(this)"><span>🔥</span><b>BPL LIVE</b></div>
             <p style="text-align:center; width:100%;" id="loading-text">Loading Channels...</p>
         </div>
     </div>
@@ -90,8 +89,16 @@
         'https://raw.githubusercontent.com/cctvccplc/Tv-Test/refs/heads/main/BD26.m3u8',
         'https://raw.githubusercontent.com/cctvccplc/Tv-Test/refs/heads/main/Bongo.m3u'
     ];
-    const bplUrl = "https://topembed.pw/channel/bet11664644";
-    const tsportsUrl = "Https://bongoflixbd.top/r/?watch=b0aeb53ec98c74b3b1bb5f16acf8f056";
+    
+    // আইফ্রেম চ্যানেল ডেটা
+    const iframeChannels = [
+        { name: "BPL LIVE", url: "https://topembed.pw/channel/bet11664644", icon: "🔥" },
+        { name: "T-Sports", url: "Https://bongoflixbd.top/r/?watch=b0aeb53ec98c74b3b1bb5f16acf8f056", icon: "📺" },
+        { name: "Max HD", url: "Https://bongoflixbd.top/r/?watch=f27d3a53af8884b6b8cf2ecc4c747d84", icon: "🎬" },
+        { name: "And Pictures", url: "https://bongoflixbd.top/r/?watch=19104c305de9e5b78777b2f2efd8a94b", icon: "🎥" },
+        { name: "Nick", url: "Https://bongoflixbd.top/r/?watch=fd144f65f19df1c7adaa116c44ce2617", icon: "👶" },
+        { name: "Star Sports", url: "Https://bongoflixbd.top/r/?watch=339dcfaa4f761b545a5b815ee54a9bad", icon: "🏏" }
+    ];
     
     let player;
 
@@ -100,38 +107,31 @@
         loadAllPlaylists();
     });
 
-    function playBPL(element) {
+    function openIframe(url, element) {
         document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
         element.classList.add('active');
         player.pause();
         document.getElementById('tv-player').style.display = 'none';
         const iframe = document.getElementById('bpl-iframe');
         iframe.style.display = 'block';
-        iframe.src = bplUrl;
+        iframe.src = url;
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     async function loadAllPlaylists() {
         const playlistElement = document.getElementById('playlist');
-        playlistElement.innerHTML = `<div class="channel-item" onclick="playBPL(this)"><span>🔥</span><b>BPL LIVE</b></div>`;
+        playlistElement.innerHTML = ""; 
 
-        // --- টি-স্পোর্টস স্পেশাল বাটন (Iframe-এ লোড হবে) ---
-        const tSportsBtn = document.createElement('div');
-        tSportsBtn.className = 'channel-item';
-        tSportsBtn.innerHTML = `<span>📺</span><b>T-Sports</b>`;
-        tSportsBtn.onclick = () => {
-            document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
-            tSportsBtn.classList.add('active');
-            player.pause();
-            document.getElementById('tv-player').style.display = 'none';
-            const iframe = document.getElementById('bpl-iframe');
-            iframe.style.display = 'block';
-            iframe.src = tsportsUrl;
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        };
-        playlistElement.appendChild(tSportsBtn);
-        // ------------------------------------------------
+        // আইফ্রেম চ্যানেলগুলো আগে যোগ করা হচ্ছে
+        iframeChannels.forEach(ch => {
+            const btn = document.createElement('div');
+            btn.className = 'channel-item';
+            btn.innerHTML = `<span>${ch.icon}</span><b>${ch.name}</b>`;
+            btn.onclick = () => openIframe(ch.url, btn);
+            playlistElement.appendChild(btn);
+        });
 
+        // M3U ফাইল থেকে বাকি চ্যানেল লোড করা
         for (const url of m3uUrls) {
             try {
                 const response = await fetch(url);
@@ -145,8 +145,8 @@
 
                         if (name && streamUrl && streamUrl.startsWith('http')) {
                             const n = name.toLowerCase();
-                            // Blocked channels filter
-                            if (n.includes('t-sports') || n.includes('cricx') || n.includes('metv')) {
+                            // আপনার বলা সব কি-ওয়ার্ড দিয়ে ফিল্টার করা হয়েছে
+                            if (n.includes('t-sports') || n.includes('star sports') || n.includes('max hd') || n.includes('and pictures') || n.includes('nick') || n.includes('cricx') || n.includes('metv')) {
                                 continue; 
                             }
 
@@ -168,7 +168,7 @@
                     }
                 }
             } catch (error) {
-                console.error("Error loading: " + url);
+                console.error("Error: " + url);
             }
         }
         document.getElementById('loading-text')?.remove();
