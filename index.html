@@ -27,9 +27,7 @@
             position: absolute; left: 10px; top: 10px;
             display: flex; flex-direction: column; gap: 5px;
         }
-        .social-link {
-            display: flex; align-items: center; gap: 8px; text-decoration: none;
-        }
+        .social-link { display: flex; align-items: center; gap: 8px; text-decoration: none; }
         .icon-box {
             background: #000; color: #e50914; width: 30px; height: 30px;
             display: flex; align-items: center; justify-content: center;
@@ -61,8 +59,12 @@
         #bpl-iframe { display: none; }
 
         .grid-header { font-size: 18px; margin-bottom: 10px; color: #e50914; font-weight: bold; border-left: 4px solid #e50914; padding-left: 10px; }
+        
+        /* Fixed Grid for same size boxes */
         .channel-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+            gap: 12px; 
             padding: 15px; background: #111; border-radius: 12px; border: 1px solid #222; 
             max-height: 450px; overflow-y: auto; 
         }
@@ -72,16 +74,23 @@
             cursor: pointer; transition: all 0.3s ease; border: 1px solid #333; 
             font-size: 13px; font-weight: 600; color: #bbb;
             display: flex; flex-direction: column; align-items: center; gap: 8px;
+            height: 80px; /* Fixed Height */
+            justify-content: center;
         }
-        .channel-item:hover { background: #252525; color: #fff; border-color: #e50914; transform: translateY(-5px); }
+        .channel-item:hover { background: #252525; color: #fff; border-color: #e50914; }
         .channel-item.active { background: #e50914; color: #fff; border-color: #fff; }
 
         .footer { text-align: center; margin-top: 40px; padding: 20px; color: #666; font-size: 14px; border-top: 1px solid #222; }
 
+        /* Android/Mobile View Adjustment */
         @media (max-width: 600px) { 
-            .social-container-left, .clock-container { position: static; transform: none; margin: 10px auto; justify-content: center; align-items: center; }
+            .social-container-left, .clock-container { position: static; margin: 10px auto; justify-content: center; }
             .player-wrapper { height: 280px; } 
-            .channel-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .channel-grid { 
+                grid-template-columns: repeat(3, 1fr) !important; /* Forces 3 boxes per row always same size */
+                gap: 8px; 
+            }
+            .channel-item { height: 70px; font-size: 11px; }
         }
     </style>
 </head>
@@ -131,8 +140,7 @@
         document.getElementById('clock').innerText = now.toLocaleTimeString();
         document.getElementById('date').innerText = now.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+    setInterval(updateClock, 1000); updateClock();
 
     const m3uUrl = 'https://raw.githubusercontent.com/cctvccplc/Tv-Test/refs/heads/main/BD26.m3u8';
     const bplUrl = "https://topembed.pw/channel/bet11664644";
@@ -160,7 +168,6 @@
             const data = await response.text();
             const lines = data.split('\n');
             const playlistElement = document.getElementById('playlist');
-            
             playlistElement.innerHTML = `<div class="channel-item" onclick="playBPL(this)"><span>🔥</span><b>BPL LIVE</b></div>`;
 
             for (let i = 0; i < lines.length; i++) {
