@@ -35,9 +35,30 @@
         .player-wrapper { position: relative; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; height: 480px; width: 100%; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
         .video-js, .channel-iframe { width: 100% !important; height: 100% !important; border: none; }
 
-        /* Grid System (No Titles) */
-        .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; padding: 15px; background: #111; border-radius: 12px; border: 1px solid #222; }
-        .channel-item { background: #1a1a1a; border-radius: 8px; padding: 15px 5px; text-align: center; cursor: pointer; transition: 0.3s; border: 1px solid #333; font-size: 12px; font-weight: 600; color: #ccc; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        /* Grid System (Balanced) */
+        .channel-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 15px; background: #111; border-radius: 12px; border: 1px solid #222; }
+        
+        /* Updated Channel Item for Equal Size */
+        .channel-item { 
+            background: #1a1a1a; 
+            border-radius: 8px; 
+            padding: 15px 5px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            border: 1px solid #333; 
+            font-size: 12px; 
+            font-weight: 600; 
+            color: #ccc; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            gap: 8px;
+            height: 110px; /* Fixed Height for all items */
+            box-sizing: border-box;
+        }
+        
         .channel-item:hover { border-color: #e50914; background: #222; }
         .channel-item.active { background: #e50914; color: #fff; border-color: #fff; }
         .channel-item span { font-size: 22px; }
@@ -47,8 +68,8 @@
         @media (max-width: 768px) {
             .social-container-left, .clock-container { position: static; margin: 5px auto; justify-content: center; text-align: center; }
             .player-wrapper { height: 230px; }
-            .channel-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
-            .channel-item { padding: 10px 2px; font-size: 10px; }
+            .channel-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; } /* Mobile e 2 column for better view */
+            .channel-item { padding: 10px 2px; font-size: 10px; height: 90px; }
         }
     </style>
 </head>
@@ -95,7 +116,7 @@
             <video id="vjsPlayer" class="video-js vjs-big-play-centered" controls preload="auto" poster="https://i.ibb.co/3pXnB9K/loading.jpg"></video>
         </div>
         <div id="m3u-list" class="channel-grid">
-            <p style="text-align:center; width:100%;">চ্যানেলগুলো লোড হচ্ছে...</p>
+            <p style="text-align:center; grid-column: span 4;">চ্যানেলগুলো লোড হচ্ছে...</p>
         </div>
     </div>
 
@@ -166,7 +187,7 @@
                 }
             }
         } catch (error) {
-            listContainer.innerHTML = "<p style='color:red;'>চ্যানেল লোড করা সম্ভব হয়নি।</p>";
+            listContainer.innerHTML = "<p style='color:red; grid-column: span 4;'>চ্যানেল লোড করা সম্ভব হয়নি।</p>";
         }
     }
 
