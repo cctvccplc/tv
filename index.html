@@ -3,235 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ccplc CcTV | Live Streaming Multi-Page</title>
+    <title>Ccplc CcTV | Live Streaming</title>
     <link href="https://vjs.zencdn.net/7.20.3/video-js.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #050505; color: #fff; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #050505; color: #fff; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
         
-        /* Navigation Styles */
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            background: #111;
-            padding: 10px 0;
-            border-bottom: 1px solid #333;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .nav-btn {
-            padding: 10px 25px;
-            margin: 0 10px;
-            background: #1a1a1a;
-            color: #fff;
-            border: 1px solid #e50914;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        .nav-btn.active {
-            background: #e50914;
-        }
-
-        /* Original Styles Integrated */
-        .premium-header { background: linear-gradient(90deg, #1f1f1f, #000); padding: 20px; text-align: center; border-bottom: 2px solid #e50914; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); margin-bottom: 20px; position: relative; }
+        /* Premium Header */
+        .premium-header { background: linear-gradient(90deg, #1f1f1f, #000); padding: 20px; text-align: center; border-bottom: 2px solid #e50914; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); position: relative; }
         .header-title { font-size: 26px; color: #e50914; text-transform: uppercase; font-weight: 800; letter-spacing: 2px; margin: 0; }
-        .live-indicator { font-size: 12px; color: #ccc; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .dot { height: 8px; width: 8px; background-color: #e50914; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
-        .social-container-left { position: absolute; left: 10px; top: 10px; display: flex; flex-direction: column; gap: 5px; }
-        .social-link { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-        .icon-box { background: #000; color: #e50914; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 16px; border: 1.5px solid #e50914; }
-        .phone-label { color: #fff; font-size: 11px; font-weight: bold; font-family: monospace; }
-        .clock-container { position: absolute; right: 10px; top: 10px; text-align: right; font-family: 'Courier New', monospace; background: rgba(229, 9, 20, 0.1); padding: 5px 12px; border-radius: 8px; border: 1px solid #e50914; }
+        
+        /* Tab Navigation */
+        .tab-container { display: flex; justify-content: center; background: #111; padding: 12px; gap: 15px; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
+        .tab-btn { padding: 10px 20px; cursor: pointer; border: 1px solid #e50914; background: transparent; color: #fff; border-radius: 6px; font-weight: bold; transition: 0.3s; font-size: 14px; }
+        .tab-btn.active { background: #e50914; color: white; box-shadow: 0 0 10px rgba(229, 9, 20, 0.5); }
+
+        /* Clock & Social */
+        .social-container-left { position: absolute; left: 15px; top: 15px; display: flex; flex-direction: column; gap: 5px; }
+        .social-link { display: flex; align-items: center; gap: 8px; text-decoration: none; color: white; font-size: 11px; }
+        .icon-box { background: #000; color: #e50914; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 5px; border: 1px solid #e50914; }
+        
+        .clock-container { position: absolute; right: 15px; top: 15px; text-align: right; background: rgba(229, 9, 20, 0.1); padding: 5px 12px; border-radius: 8px; border: 1px solid #e50914; }
         #clock { font-size: 16px; color: #e50914; font-weight: bold; }
-        #date { font-size: 9px; color: #aaa; }
-        .container { max-width: 1100px; margin: auto; padding: 15px; }
-        .player-wrapper { position: relative; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; height: 500px; width: 100%; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .video-js, .bpl-iframe { width: 100% !important; height: 100% !important; border: none !important; outline: none !important; display: none; }
-        .grid-header { font-size: 18px; margin-bottom: 10px; color: #e50914; font-weight: bold; border-left: 4px solid #e50914; padding-left: 10px; }
-        .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; padding: 15px; background: #111; border-radius: 12px; border: 1px solid #222; max-height: 450px; overflow-y: auto; }
-        .channel-item { background: #1a1a1a; border-radius: 8px; padding: 15px 5px; text-align: center; cursor: pointer; transition: all 0.3s ease; border: 1px solid #333; font-size: 13px; font-weight: 600; color: #bbb; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 80px; justify-content: center; overflow: hidden; }
-        .channel-item.active { background: #e50914; color: #fff !important; border-color: #fff; }
-        .footer { text-align: center; margin-top: 40px; padding: 20px; color: #666; font-size: 14px; border-top: 1px solid #222; }
+        #date { font-size: 10px; color: #aaa; }
 
-        .page-content { display: none; }
-        .page-content.active { display: block; }
+        .container { max-width: 1100px; margin: auto; padding: 10px 20px; }
+        .page { display: none; }
+        .page.active { display: block; }
 
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        @media (max-width: 600px) {
-            .social-container-left, .clock-container { position: static; margin: 10px auto; justify-content: center; }
-            .player-wrapper { height: 250px; }
-            .channel-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 8px !important; }
+        /* Player Wrapper */
+        .player-wrapper { position: relative; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; height: 480px; width: 100%; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        .video-js, .channel-iframe { width: 100% !important; height: 100% !important; border: none; }
+
+        /* Grid System (No Titles) */
+        .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; padding: 15px; background: #111; border-radius: 12px; border: 1px solid #222; }
+        .channel-item { background: #1a1a1a; border-radius: 8px; padding: 15px 5px; text-align: center; cursor: pointer; transition: 0.3s; border: 1px solid #333; font-size: 12px; font-weight: 600; color: #ccc; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .channel-item:hover { border-color: #e50914; background: #222; }
+        .channel-item.active { background: #e50914; color: #fff; border-color: #fff; }
+        .channel-item span { font-size: 22px; }
+
+        .footer { text-align: center; margin-top: 50px; padding: 20px; color: #666; font-size: 13px; border-top: 1px solid #222; }
+
+        @media (max-width: 768px) {
+            .social-container-left, .clock-container { position: static; margin: 5px auto; justify-content: center; text-align: center; }
+            .player-wrapper { height: 230px; }
+            .channel-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
+            .channel-item { padding: 10px 2px; font-size: 10px; }
         }
     </style>
 </head>
 <body>
 
-<div class="nav-tabs">
-    <button class="nav-btn active" onclick="switchPage('page1', this)">সার্ভার ১</button>
-    <button class="nav-btn" onclick="switchPage('page2', this)">সার্ভার ২ (ফিল্টার্ড)</button>
-</div>
-
 <div class="premium-header">
     <div class="social-container-left">
-        <a href="https://www.facebook.com/tometopata" target="_blank" class="social-link">
-            <div class="icon-box"><i class="fab fa-facebook-f"></i></div>
-            <span class="phone-label">+8801890296063</span>
-        </a>
-        <a href="https://wa.me/qr/WF4LWSQPWAD3K1" target="_blank" class="social-link">
-            <div class="icon-box"><i class="fab fa-whatsapp"></i></div>
-            <span class="phone-label">WhatsApp</span>
-        </a>
+        <a href="https://www.facebook.com/tometopata" target="_blank" class="social-link"><div class="icon-box"><i class="fab fa-facebook-f"></i></div><span>Facebook</span></a>
+        <a href="https://wa.me/qr/WF4LWSQPWAD3K1" target="_blank" class="social-link"><div class="icon-box"><i class="fab fa-whatsapp"></i></div><span>WhatsApp</span></a>
     </div>
     <div class="header-title">Ccplc CcTv Live</div>
-    <div class="live-indicator"><span class="dot"></span> All Channels are Active</div>
-    <div class="clock-container">
-        <div id="clock">00:00:00</div>
-        <div id="date">Jan 16, 2026</div>
-    </div>
+    <div class="clock-container"><div id="clock">00:00:00</div><div id="date">Date</div></div>
 </div>
 
-<div class="container">
-    <div id="page1" class="page-content active">
-        <div class="player-wrapper">
-            <video id="player1" class="video-js vjs-big-play-centered" controls preload="auto" poster="https://i.ibb.co/3pXnB9K/loading.jpg"></video>
-            <iframe id="iframe1" class="bpl-iframe" src="" allowfullscreen="true" scrolling="no" frameborder="0"></iframe>
-        </div>
-        <div class="grid-header">সার্ভার ১ চ্যানেল লিস্ট (Bongo Only)</div>
-        <div class="channel-grid" id="playlist1">Loading...</div>
-    </div>
-
-    <div id="page2" class="page-content">
-        <div class="player-wrapper">
-            <video id="player2" class="video-js vjs-big-play-centered" controls preload="auto" poster="https://i.ibb.co/3pXnB9K/loading.jpg"></video>
-            <iframe id="iframe2" class="bpl-iframe" src="" allowfullscreen="true" scrolling="no" frameborder="0"></iframe>
-        </div>
-        <div class="grid-header">সার্ভার ২ চ্যানেল লিস্ট (All Channels + Filter)</div>
-        <div class="channel-grid" id="playlist2">Loading...</div>
-    </div>
+<div class="tab-container">
+    <button class="tab-btn active" onclick="switchPage('page1', this)">পেজ ১ (স্পোর্টস)</button>
+    <button class="tab-btn" onclick="switchPage('page2', this)">পেজ ২ (এক্সক্লুসিভ)</button>
 </div>
 
-<div class="footer">&copy; 2026 Ccplc CcTv. HD Streaming</div>
+<div id="main-app" class="container">
+    
+    <div id="page1" class="page active">
+        <div class="player-wrapper">
+            <iframe id="iframePlayer" class="channel-iframe" src="https://bongoflixbd.top/r/?watch=b0aeb53ec98c74b3b1bb5f16acf8f056" allowfullscreen="true"></iframe>
+        </div>
+        <div class="channel-grid">
+            <div class="channel-item active" onclick="playIframe('https://bongoflixbd.top/r/?watch=b0aeb53ec98c74b3b1bb5f16acf8f056', this)"><span>🏏</span>T-Sports</div>
+            <div class="channel-item" onclick="playIframe('https://bongoflixbd.top/r/?watch=69086d6707839fe65f5fb225f86878a8', this)"><span>📺</span>Star Sports 1</div>
+            <div class="channel-item" onclick="playIframe('https://bongoflixbd.top/r/?watch=f9a3896a6c8ab06856cf96358abfc17a', this)"><span>📺</span>Star Sports 2</div>
+            <div class="channel-item" onclick="playIframe('https://bongoflixbd.top/r/?watch=339dcfaa4f761b545a5b815ee54a9bad', this)"><span>📺</span>SS Select</div>
+            <div class="channel-item" onclick="playIframe('https://bongoflixbd.top/r/?watch=e9643500c3fcb10664f066ea35c2b066', this)"><span>⚽</span>Sony Ten 1</div>
+            <div class="channel-item" onclick="playIframe('https://bongoflixbd.top/r/?watch=3d1d7c776a34868a19d58f47ee093c75', this)"><span>⚽</span>Sony Ten 2</div>
+            <div class="channel-item" onclick="playIframe('https://bongoflixbd.top/r/?watch=b7f6b2a595e9be6825ad620fabb117d1', this)"><span>⚽</span>Sony Ten 3</div>
+            <div class="channel-item" onclick="playIframe('https://bongoflixbd.top/r/?watch=6deb58f4dedbc593f8e0d7127c543fa2', this)"><span>🎾</span>Sony Six</div>
+            <div class="channel-item" onclick="playIframe('https://bongoflixbd.top/r/?watch=24fbea42d08c89ba274936cd42dac5b4', this)"><span>🏏</span>Ten Cricket</div>
+            <div class="channel-item" onclick="playIframe('https://bongoflixbd.top/r/?watch=52e93ac9aa0c88d7987f95f9de4e7a94', this)"><span>🏎️</span>Euro Sports</div>
+            <div class="channel-item" onclick="playIframe('https://bongoflixbd.top/r/?watch=26d6d38e39c1b8fce59f80dae6e75a4f', this)"><span>🏆</span>Dubai Sports</div>
+            <div class="channel-item" onclick="playIframe('https://topembed.pw/channel/bet11664644', this)"><span>🔥</span>BPL LIVE</div>
+        </div>
+    </div>
+
+    <div id="page2" class="page">
+        <div class="player-wrapper">
+            <video id="vjsPlayer" class="video-js vjs-big-play-centered" controls preload="auto" poster="https://i.ibb.co/3pXnB9K/loading.jpg"></video>
+        </div>
+        <div id="m3u-list" class="channel-grid">
+            <p style="text-align:center; width:100%;">চ্যানেলগুলো লোড হচ্ছে...</p>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">&copy; 2026 Ccplc CcTv. High Definition Live Streaming.</div>
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 <script>
-    // Clock Logic
+    let vPlayer;
+    const m3uUrl = 'https://raw.githubusercontent.com/cctvccplc/Tv-Test/refs/heads/main/BD26.m3u8';
+
+    document.addEventListener("DOMContentLoaded", function() {
+        vPlayer = videojs('vjsPlayer');
+        loadM3U();
+    });
+
+    function switchPage(pageId, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        btn.classList.add('active');
+        
+        if(pageId === 'page1') {
+            vPlayer.pause();
+        } else {
+            const iframe = document.getElementById('iframePlayer');
+            const currentSrc = iframe.src;
+            iframe.src = ""; 
+            iframe.src = currentSrc; 
+        }
+    }
+
+    function playIframe(url, el) {
+        document.getElementById('iframePlayer').src = url;
+        document.querySelectorAll('#page1 .channel-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    async function loadM3U() {
+        const listContainer = document.getElementById('m3u-list');
+        try {
+            const response = await fetch(m3uUrl);
+            const data = await response.text();
+            const lines = data.split('\n');
+            listContainer.innerHTML = "";
+
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith('#EXTINF:')) {
+                    const info = lines[i].split(',');
+                    const name = info[1] || "Unknown Channel";
+                    const streamUrl = lines[i + 1]?.trim();
+
+                    if (streamUrl && streamUrl.startsWith('http')) {
+                        const div = document.createElement('div');
+                        div.className = 'channel-item';
+                        div.innerHTML = `<span>📡</span><b>${name}</b>`;
+                        div.onclick = () => {
+                            document.querySelectorAll('#page2 .channel-item').forEach(item => item.classList.remove('active'));
+                            div.classList.add('active');
+                            vPlayer.src({ src: streamUrl, type: 'application/x-mpegURL' });
+                            vPlayer.play();
+                            window.scrollTo({top: 0, behavior: 'smooth'});
+                        };
+                        listContainer.appendChild(div);
+                    }
+                }
+            }
+        } catch (error) {
+            listContainer.innerHTML = "<p style='color:red;'>চ্যানেল লোড করা সম্ভব হয়নি।</p>";
+        }
+    }
+
     function updateClock() {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString();
         document.getElementById('date').innerText = now.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
     }
     setInterval(updateClock, 1000);
-
-    // Common Data
-    const iframeData = [
-        { name: "BPL LIVE", url: "https://topembed.pw/channel/bet11664644", icon: "🔥" },
-        { name: "T-Sports", url: "https://bongoflixbd.top/r/?watch=b0aeb53ec98c74b3b1bb5f16acf8f056", icon: "📺" },
-        { name: "Max HD", url: "https://bongoflixbd.top/r/?watch=f27d3a53af8884b6b8cf2ecc4c747d84", icon: "🎬" },
-        { name: "And Pictures", url: "https://bongoflixbd.top/r/?watch=19104c305de9e5b78777b2f2efd8a94b", icon: "🎥" },
-        { name: "Nick", url: "https://bongoflixbd.top/r/?watch=fd144f65f19df1c7adaa116c44ce2617", icon: "👶" },
-        { name: "Star Sports", url: "https://bongoflixbd.top/r/?watch=339dcfaa4f761b545a5b815ee54a9bad", icon: "🏏" }
-    ];
-
-    let vPlayer1, vPlayer2;
-
-    // Switch Page Function
-    function switchPage(pageId, btn) {
-        document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        btn.classList.add('active');
-        
-        // Stop players when switching
-        vPlayer1.pause();
-        vPlayer2.pause();
-        document.querySelectorAll('iframe').forEach(f => f.src = "");
-        document.querySelectorAll('iframe').forEach(f => f.style.display = "none");
-        document.querySelectorAll('video').forEach(v => v.style.display = "block");
-    }
-
-    // Load Logic for Page 1 (Bongo Only - From Code 1)
-    async function initPage1() {
-        const list = document.getElementById('playlist1');
-        list.innerHTML = "";
-        iframeData.forEach(ch => list.appendChild(createBtn(ch, 1, true)));
-        
-        const res = await fetch('https://raw.githubusercontent.com/cctvccplc/Tv-Test/refs/heads/main/Bongo.m3u');
-        const text = await res.text();
-        parseM3U(text, list, 1, ['t-sports', 'star sports', 'max hd']);
-    }
-
-    // Load Logic for Page 2 (BD26 + Bongo + Heavy Filter - From Code 2)
-    async function initPage2() {
-        const list = document.getElementById('playlist2');
-        list.innerHTML = "";
-        iframeData.forEach(ch => list.appendChild(createBtn(ch, 2, true)));
-        
-        const urls = [
-            'https://raw.githubusercontent.com/cctvccplc/Tv-Test/refs/heads/main/BD26.m3u8',
-            'https://raw.githubusercontent.com/cctvccplc/Tv-Test/refs/heads/main/Bongo.m3u'
-        ];
-        
-        for(let url of urls) {
-            const res = await fetch(url);
-            const text = await res.text();
-            parseM3U(text, list, 2, ['t-sports', 'star sports', 'max hd', 'and pictures', 'nick', 'cricx', 'metv']);
-        }
-    }
-
-    function parseM3U(data, container, playerNum, filters) {
-        const lines = data.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-            if (lines[i].startsWith('#EXTINF:')) {
-                const name = lines[i].split(',')[1] || "Unknown";
-                const url = lines[i + 1]?.trim();
-                const isFiltered = filters.some(f => name.toLowerCase().includes(f));
-                
-                if (url && url.startsWith('http') && !isFiltered) {
-                    container.appendChild(createBtn({name, url}, playerNum, false));
-                }
-            }
-        }
-    }
-
-    function createBtn(ch, playerNum, isIframe) {
-        const div = document.createElement('div');
-        div.className = 'channel-item';
-        div.innerHTML = `<span>${ch.icon || '📺'}</span><b>${ch.name}</b>`;
-        div.onclick = () => {
-            const vid = document.getElementById('player' + playerNum);
-            const ifr = document.getElementById('iframe1' === 'iframe' + playerNum ? 'iframe1' : 'iframe2');
-            const p = playerNum === 1 ? vPlayer1 : vPlayer2;
-
-            document.querySelectorAll(`#playlist${playerNum} .channel-item`).forEach(el => el.classList.remove('active'));
-            div.classList.add('active');
-
-            if(isIframe) {
-                p.pause();
-                vid.style.display = "none";
-                ifr.style.display = "block";
-                ifr.src = ch.url;
-            } else {
-                ifr.style.display = "none";
-                ifr.src = "";
-                vid.style.display = "block";
-                p.src({ src: ch.url, type: 'application/x-mpegURL' });
-                p.play();
-            }
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        };
-        return div;
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        vPlayer1 = videojs('player1');
-        vPlayer2 = videojs('player2');
-        initPage1();
-        initPage2();
-        updateClock();
-    });
+    updateClock();
 </script>
 </body>
 </html>
