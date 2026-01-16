@@ -35,10 +35,17 @@
         .player-wrapper { position: relative; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; height: 480px; width: 100%; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
         .video-js, .channel-iframe { width: 100% !important; height: 100% !important; border: none; }
 
-        /* Grid System (Balanced) */
-        .channel-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 15px; background: #111; border-radius: 12px; border: 1px solid #222; }
+        /* Fixed Grid System - Equal columns */
+        .channel-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 12px; 
+            padding: 15px; 
+            background: #111; 
+            border-radius: 12px; 
+            border: 1px solid #222; 
+        }
         
-        /* Updated Channel Item for Equal Size */
         .channel-item { 
             background: #1a1a1a; 
             border-radius: 8px; 
@@ -55,21 +62,25 @@
             align-items: center; 
             justify-content: center;
             gap: 8px;
-            height: 110px; /* Fixed Height for all items */
+            height: 100px; 
             box-sizing: border-box;
+            width: 100%; 
+            overflow: hidden; /* অতিরিক্ত টেক্সট যাতে বাইরে না যায় */
         }
-        
+
         .channel-item:hover { border-color: #e50914; background: #222; }
         .channel-item.active { background: #e50914; color: #fff; border-color: #fff; }
         .channel-item span { font-size: 22px; }
+        .channel-item b { display: block; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .footer { text-align: center; margin-top: 50px; padding: 20px; color: #666; font-size: 13px; border-top: 1px solid #222; }
 
+        /* Mobile View - Equal 3 columns */
         @media (max-width: 768px) {
             .social-container-left, .clock-container { position: static; margin: 5px auto; justify-content: center; text-align: center; }
             .player-wrapper { height: 230px; }
-            .channel-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; } /* Mobile e 2 column for better view */
-            .channel-item { padding: 10px 2px; font-size: 10px; height: 90px; }
+            .channel-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
+            .channel-item { padding: 10px 2px; font-size: 10px; height: 85px; }
         }
     </style>
 </head>
@@ -167,14 +178,19 @@
 
             for (let i = 0; i < lines.length; i++) {
                 if (lines[i].startsWith('#EXTINF:')) {
-                    const info = lines[i].split(',');
-                    const name = info[1] || "Unknown Channel";
+                    let info = lines[i].split(',');
+                    let rawName = info[1] || "Unknown Channel";
+                    
+                    // এখানে KODIPROP বা লম্বা কি-গুলো বাদ দেয়া হচ্ছে
+                    let cleanName = rawName.split('KODIPROP')[0].split('inputstream')[0].split(':')[0].trim();
+
                     const streamUrl = lines[i + 1]?.trim();
 
                     if (streamUrl && streamUrl.startsWith('http')) {
                         const div = document.createElement('div');
                         div.className = 'channel-item';
-                        div.innerHTML = `<span>📡</span><b>${name}</b>`;
+                        // পেজ ১-এর মত একই ডিজাইন
+                        div.innerHTML = `<span>📡</span><b>${cleanName}</b>`;
                         div.onclick = () => {
                             document.querySelectorAll('#page2 .channel-item').forEach(item => item.classList.remove('active'));
                             div.classList.add('active');
