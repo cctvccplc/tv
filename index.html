@@ -25,17 +25,29 @@
         
         .clock-container { position: absolute; right: 15px; top: 15px; text-align: right; background: rgba(229, 9, 20, 0.1); padding: 5px 12px; border-radius: 8px; border: 1px solid #e50914; }
         #clock { font-size: 16px; color: #e50914; font-weight: bold; }
-        #date { font-size: 10px; color: #aaa; }
+        #date { font-size: 10px; color: #aaa; margin-top: 2px; }
 
         .container { max-width: 1100px; margin: auto; padding: 10px 20px; }
         .page { display: none; }
         .page.active { display: block; }
 
-        /* Player Wrapper */
-        .player-wrapper { position: relative; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #333; height: 480px; width: 100%; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        /* Sticky Player Wrapper */
+        .player-wrapper { 
+            position: sticky; 
+            top: 60px; 
+            z-index: 999; 
+            background: #000; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #333; 
+            height: 480px; 
+            width: 100%; 
+            margin-bottom: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7); 
+        }
         .video-js, .channel-iframe { width: 100% !important; height: 100% !important; border: none; }
 
-        /* Fixed Grid System - Equal columns */
+        /* Fixed Grid System */
         .channel-grid { 
             display: grid; 
             grid-template-columns: repeat(4, 1fr); 
@@ -65,7 +77,6 @@
             height: 100px; 
             box-sizing: border-box;
             width: 100%; 
-            overflow: hidden; /* অতিরিক্ত টেক্সট যাতে বাইরে না যায় */
         }
 
         .channel-item:hover { border-color: #e50914; background: #222; }
@@ -75,10 +86,9 @@
 
         .footer { text-align: center; margin-top: 50px; padding: 20px; color: #666; font-size: 13px; border-top: 1px solid #222; }
 
-        /* Mobile View - Equal 3 columns */
         @media (max-width: 768px) {
             .social-container-left, .clock-container { position: static; margin: 5px auto; justify-content: center; text-align: center; }
-            .player-wrapper { height: 230px; }
+            .player-wrapper { height: 230px; top: 55px; } 
             .channel-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
             .channel-item { padding: 10px 2px; font-size: 10px; height: 85px; }
         }
@@ -88,11 +98,14 @@
 
 <div class="premium-header">
     <div class="social-container-left">
-        <a href="https://www.facebook.com/tometopata" target="_blank" class="social-link"><div class="icon-box"><i class="fab fa-facebook-f"></i></div><span>Facebook</span></a>
-        <a href="https://wa.me/qr/WF4LWSQPWAD3K1" target="_blank" class="social-link"><div class="icon-box"><i class="fab fa-whatsapp"></i></div><span>WhatsApp</span></a>
+        <a href="https://www.facebook.com/tometopata" target="_blank" class="social-link"><div class="icon-box"><i class="fab fa-facebook-f"></i></div><span>ফেসবুক</span></a>
+        <a href="https://wa.me/qr/WF4LWSQPWAD3K1" target="_blank" class="social-link"><div class="icon-box"><i class="fab fa-whatsapp"></i></div><span>হোয়াটসঅ্যাপ</span></a>
     </div>
     <div class="header-title">Ccplc CcTv Live</div>
-    <div class="clock-container"><div id="clock">00:00:00</div><div id="date">Date</div></div>
+    <div class="clock-container">
+        <div id="clock">০০:০০:০০</div>
+        <div id="date">বার, তারিখ</div>
+    </div>
 </div>
 
 <div class="tab-container">
@@ -101,7 +114,6 @@
 </div>
 
 <div id="main-app" class="container">
-    
     <div id="page1" class="page active">
         <div class="player-wrapper">
             <iframe id="iframePlayer" class="channel-iframe" src="https://bongoflixbd.top/r/?watch=b0aeb53ec98c74b3b1bb5f16acf8f056" allowfullscreen="true"></iframe>
@@ -130,10 +142,9 @@
             <p style="text-align:center; grid-column: span 4;">চ্যানেলগুলো লোড হচ্ছে...</p>
         </div>
     </div>
-
 </div>
 
-<div class="footer">&copy; 2026 Ccplc CcTv. High Definition Live Streaming.</div>
+<div class="footer">&copy; ২০২৬ Ccplc CcTv. হাই ডেফিনিশন লাইভ স্ট্রিমিং।</div>
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 <script>
@@ -151,10 +162,10 @@
         document.getElementById(pageId).classList.add('active');
         btn.classList.add('active');
         
+        const iframe = document.getElementById('iframePlayer');
         if(pageId === 'page1') {
-            vPlayer.pause();
+            vPlayer.pause(); 
         } else {
-            const iframe = document.getElementById('iframePlayer');
             const currentSrc = iframe.src;
             iframe.src = ""; 
             iframe.src = currentSrc; 
@@ -165,7 +176,6 @@
         document.getElementById('iframePlayer').src = url;
         document.querySelectorAll('#page1 .channel-item').forEach(i => i.classList.remove('active'));
         el.classList.add('active');
-        window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     async function loadM3U() {
@@ -180,23 +190,18 @@
                 if (lines[i].startsWith('#EXTINF:')) {
                     let info = lines[i].split(',');
                     let rawName = info[1] || "Unknown Channel";
-                    
-                    // এখানে KODIPROP বা লম্বা কি-গুলো বাদ দেয়া হচ্ছে
                     let cleanName = rawName.split('KODIPROP')[0].split('inputstream')[0].split(':')[0].trim();
-
                     const streamUrl = lines[i + 1]?.trim();
 
                     if (streamUrl && streamUrl.startsWith('http')) {
                         const div = document.createElement('div');
                         div.className = 'channel-item';
-                        // পেজ ১-এর মত একই ডিজাইন
                         div.innerHTML = `<span>📡</span><b>${cleanName}</b>`;
                         div.onclick = () => {
                             document.querySelectorAll('#page2 .channel-item').forEach(item => item.classList.remove('active'));
                             div.classList.add('active');
                             vPlayer.src({ src: streamUrl, type: 'application/x-mpegURL' });
                             vPlayer.play();
-                            window.scrollTo({top: 0, behavior: 'smooth'});
                         };
                         listContainer.appendChild(div);
                     }
@@ -207,11 +212,36 @@
         }
     }
 
+    function toBanglaNum(num) {
+        const banglaNums = {'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯'};
+        return num.toString().replace(/[0-9]/g, s => banglaNums[s]);
+    }
+
     function updateClock() {
         const now = new Date();
-        document.getElementById('clock').innerText = now.toLocaleTimeString();
-        document.getElementById('date').innerText = now.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+        
+        // সময়
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        let seconds = now.getSeconds();
+        let ampm = hours >= 12 ? 'পিএম' : 'এএম';
+        hours = hours % 12 || 12;
+        
+        const timeStr = toBanglaNum(hours.toString().padStart(2, '0')) + ":" + 
+                        toBanglaNum(minutes.toString().padStart(2, '0')) + ":" + 
+                        toBanglaNum(seconds.toString().padStart(2, '0')) + " " + ampm;
+        
+        // বার এবং তারিখ (বাংলা)
+        const dayOptions = { weekday: 'long' };
+        const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+        
+        const dayName = now.toLocaleDateString('bn-BD', dayOptions);
+        const dateStr = now.toLocaleDateString('bn-BD', dateOptions);
+        
+        document.getElementById('clock').innerText = timeStr;
+        document.getElementById('date').innerText = dayName + ", " + dateStr;
     }
+    
     setInterval(updateClock, 1000);
     updateClock();
 </script>
