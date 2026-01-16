@@ -116,7 +116,7 @@
 <div id="main-app" class="container">
     <div id="page1" class="page active">
         <div class="player-wrapper">
-            <iframe id="iframePlayer" class="channel-iframe" src="https://bongoflixbd.top/r/?watch=b0aeb53ec98c74b3b1bb5f16acf8f056" allowfullscreen="true"></iframe>
+            <iframe id="iframePlayer" class="channel-iframe" src="https://bongoflixbd.top/r/?watch=b0aeb53ec98c74b3b1bb5f16acf8f056" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>
         </div>
         <div class="channel-grid">
             <div class="channel-item active" onclick="playIframe('https://bongoflixbd.top/r/?watch=b0aeb53ec98c74b3b1bb5f16acf8f056', this)"><span>🏏</span>T-Sports</div>
@@ -150,9 +150,11 @@
 <script>
     let vPlayer;
     const m3uUrl = 'https://raw.githubusercontent.com/cctvccplc/Tv-Test/refs/heads/main/BD26.m3u8';
+    let lastIframeSrc = ""; // আগের আইফ্রেম সোর্স মনে রাখার জন্য
 
     document.addEventListener("DOMContentLoaded", function() {
         vPlayer = videojs('vjsPlayer');
+        lastIframeSrc = document.getElementById('iframePlayer').src;
         loadM3U();
     });
 
@@ -163,16 +165,22 @@
         btn.classList.add('active');
         
         const iframe = document.getElementById('iframePlayer');
+        
         if(pageId === 'page1') {
-            vPlayer.pause(); 
+            // পেজ ১ এ আসলে পেজ ২ এর ভিডিও প্লেয়ার বন্ধ হবে
+            vPlayer.pause();
+            vPlayer.src(""); // প্লেয়ার ক্লিয়ার করা
+            // পেজ ১ এর আইফ্রেম রিলোড (যাতে ভিডিও আবার শুরু হয়)
+            iframe.src = lastIframeSrc;
         } else {
-            const currentSrc = iframe.src;
+            // পেজ ২ এ গেলে পেজ ১ এর আইফ্রেম সোর্স খালি করে দেয়া (যাতে ভিডিও বন্ধ হয়)
+            lastIframeSrc = iframe.src;
             iframe.src = ""; 
-            iframe.src = currentSrc; 
         }
     }
 
     function playIframe(url, el) {
+        lastIframeSrc = url;
         document.getElementById('iframePlayer').src = url;
         document.querySelectorAll('#page1 .channel-item').forEach(i => i.classList.remove('active'));
         el.classList.add('active');
@@ -219,25 +227,18 @@
 
     function updateClock() {
         const now = new Date();
-        
-        // সময়
         let hours = now.getHours();
         let minutes = now.getMinutes();
         let seconds = now.getSeconds();
         let ampm = hours >= 12 ? 'পিএম' : 'এএম';
         hours = hours % 12 || 12;
-        
         const timeStr = toBanglaNum(hours.toString().padStart(2, '0')) + ":" + 
                         toBanglaNum(minutes.toString().padStart(2, '0')) + ":" + 
                         toBanglaNum(seconds.toString().padStart(2, '0')) + " " + ampm;
-        
-        // বার এবং তারিখ (বাংলা)
         const dayOptions = { weekday: 'long' };
         const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-        
         const dayName = now.toLocaleDateString('bn-BD', dayOptions);
         const dateStr = now.toLocaleDateString('bn-BD', dateOptions);
-        
         document.getElementById('clock').innerText = timeStr;
         document.getElementById('date').innerText = dayName + ", " + dateStr;
     }
