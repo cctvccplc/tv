@@ -75,23 +75,25 @@
             border-radius: 3px;
         }
 
-        .rec-indicator {
+        .powered-by {
             display: flex; align-items: center; gap: 6px;
             font-family: var(--mono);
             font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            color: var(--accent);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: var(--text-faint);
+            border: 1px solid var(--border-strong);
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: var(--surface);
         }
-        .rec-dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 8px rgba(232,56,79,0.9);
-            animation: pulse-rec 1.6s ease-in-out infinite;
+        .powered-by .pb-label {
+            color: var(--text-faint);
         }
-        @keyframes pulse-rec {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.25; }
+        .powered-by .pb-brand {
+            color: var(--amber);
+            font-weight: 700;
+            letter-spacing: 0.8px;
         }
 
         /* ---------- Video ---------- */
@@ -121,28 +123,6 @@
         .fc-tr { top: 6px; right: 6px; border-left: none; border-bottom: none; }
         .fc-bl { bottom: 6px; left: 6px; border-right: none; border-top: none; }
         .fc-br { bottom: 6px; right: 6px; border-left: none; border-top: none; }
-
-        .live-badge {
-            position: absolute;
-            top: 10px; left: 28px;
-            z-index: 5;
-            font-family: var(--mono);
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: #fff;
-            background: rgba(0,0,0,0.55);
-            border: 1px solid rgba(255,255,255,0.15);
-            padding: 3px 8px;
-            border-radius: 3px;
-            display: flex; align-items: center; gap: 5px;
-            pointer-events: none;
-        }
-        .live-badge .dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: var(--live);
-            box-shadow: 0 0 6px rgba(53,201,165,0.9);
-        }
 
         #vjs-player, #iframe-player {
             width: 100% !important;
@@ -306,7 +286,7 @@
         <div class="logo-block">
             <div class="logo">CCPLC<span class="tag">CCTV</span></div>
         </div>
-        <div class="rec-indicator"><span class="rec-dot"></span>REC</div>
+        <div class="powered-by"><span class="pb-label">Powered by</span><span class="pb-brand">CrownCement</span></div>
     </header>
 
     <div class="video-box" id="player-container">
@@ -314,7 +294,6 @@
         <div class="frame-corner fc-tr"></div>
         <div class="frame-corner fc-bl"></div>
         <div class="frame-corner fc-br"></div>
-        <div class="live-badge"><span class="dot"></span>LIVE</div>
         <video id="vjs-player" class="video-js vjs-big-play-centered" controls preload="auto"></video>
         <iframe id="iframe-player" style="display:none; width:100%; height:100%; border:none;" allowfullscreen></iframe>
     </div>
