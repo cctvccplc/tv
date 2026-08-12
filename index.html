@@ -16,15 +16,22 @@
             --text: #eef1f4;
             --text-dim: #7c8591;
             --text-faint: #4b525c;
-            --accent: #e8384f;      /* tally / rec light */
+            --accent: #e8384f;       /* tally / rec light */
             --accent-dim: #7a1f29;
-            --live: #35c9a5;        /* status / live */
-            --amber: #e8a13b;       /* secondary accent, used sparingly */
+            --live: #35c9a5;         /* status / live */
+            --amber: #e8a13b;        /* secondary accent */
             --mono: 'JetBrains Mono', monospace;
             --sans: 'Hind Siliguri', sans-serif;
         }
 
-        * { box-sizing: border-box; }
+        * { 
+            box-sizing: border-box; 
+            /* Anti-copy & text protection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
 
         body {
             background-color: var(--bg);
@@ -37,7 +44,7 @@
             overflow-x: hidden;
         }
 
-        ::selection { background: var(--accent); color: #fff; }
+        ::selection { background: transparent; color: inherit; }
 
         /* ---------- Header ---------- */
         .sticky-top-area {
@@ -87,16 +94,14 @@
             border-radius: 20px;
             background: var(--surface);
         }
-        .powered-by .pb-label {
-            color: var(--text-faint);
-        }
+        .powered-by .pb-label { color: var(--text-faint); }
         .powered-by .pb-brand {
             color: var(--amber);
             font-weight: 700;
             letter-spacing: 0.8px;
         }
 
-        /* ---------- Video ---------- */
+        /* ---------- Video Box ---------- */
         .video-box {
             background: #000;
             position: relative;
@@ -110,7 +115,6 @@
             overflow: hidden;
         }
 
-        /* viewfinder corner brackets — decorative, non-interactive */
         .frame-corner {
             position: absolute;
             width: 16px; height: 16px;
@@ -155,7 +159,7 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* ---------- Layout ---------- */
+        /* ---------- Layout & Grid ---------- */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -189,7 +193,6 @@
         #ch-search::placeholder { color: var(--text-faint); }
         #ch-search:focus { border-color: var(--accent-dim); }
 
-        /* ---------- Tabs (channel presets) ---------- */
         .tabs {
             display: flex; overflow-x: auto; gap: 4px; padding: 12px 0 10px 0;
             scrollbar-width: thin;
@@ -213,7 +216,6 @@
         .tab:hover { color: var(--text); }
         .tab.active { color: var(--text); border-bottom-color: var(--accent); }
 
-        /* ---------- Grid ---------- */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
@@ -279,7 +281,7 @@
         }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
 <div class="sticky-top-area">
     <header>
@@ -314,6 +316,29 @@
 
 <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 <script>
+    // --- Security Protection (Disable Right-Click & Shortcuts) ---
+    document.addEventListener('keydown', function(e) {
+        if (
+            e.keyCode === 123 || // F12
+            (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
+            (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83)) // Ctrl+U or Ctrl+S
+        ) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Anti-DevTools Inspection Protection
+    setInterval(function() {
+        const start = performance.now();
+        debugger;
+        const end = performance.now();
+        if (end - start > 100) {
+            document.body.innerHTML = "<h2 style='color:#e8384f; text-align:center; margin-top:20%; font-family: sans-serif;'>Access Restricted! Inspect Element Disabled.</h2>";
+        }
+    }, 1000);
+
+    // --- Main Application Variables ---
     let tvPlayer = null;
     let masterData = {};
     let currentRandomQuote = "";
@@ -322,106 +347,9 @@
     const M3U_URL = 'https://raw.githubusercontent.com/cctvccplc/Tv-Test/refs/heads/main/Orochi%20Tv';
 
     const QUOTES = [
-        "সাফল্য তাদেরই জন্য যারা শেষ পর্যন্ত লড়াই করে।",
-        "যে ব্যর্থ হতে ভয় পায় না, সেই একদিন সফল হয়।",
-        "স্বপ্ন দেখতে হয় বড়, তবেই তা পূরণ করার সাহস আসে।",
-        "পরিশ্রম কখনো বৃথা যায় না।",
-        "আজকের কষ্টই আগামীর সুখের ভিত্তি।",
-        "যে থেমে যায় না, সেই এগিয়ে যায়।",
-        "নিজের উপর বিশ্বাস রাখো, বাকিটা সময় বলে দেবে।",
-        "ব্যর্থতা সাফল্যের প্রথম সিঁড়ি।",
-        "চেষ্টা করলে অসম্ভবও সম্ভব হয়।",
-        "সময়ের কাজ সময়ে করাই বুদ্ধিমানের পরিচয়।",
-        "যে নিজেকে জয় করতে পারে, সে সবকিছু জয় করতে পারে।",
-        "ধৈর্য ধরে অপেক্ষা করলে ফল মিষ্টি হয়।",
-        "জ্ঞানই শক্তি।",
-        "সত্যের পথে চলা কঠিন হলেও তা টেকসই।",
-        "একতাই বল।",
-        "পরিশ্রমই সৌভাগ্যের চাবিকাঠি।",
-        "যে শেখে না, সে পিছিয়ে পড়ে।",
-        "আত্মবিশ্বাস সাফল্যের প্রথম শর্ত।",
-        "সময় কখনো কারো জন্য থেমে থাকে না।",
-        "যা কিছু ভালো, তা সহজে আসে না।",
-        "প্রতিটি সমস্যার সমাধান আছে, শুধু খুঁজে বের করতে হয়।",
-        "নিজের ভুল থেকে শেখাই প্রকৃত জ্ঞান।",
-        "যে হাসিমুখে কষ্ট সহ্য করে, সেই প্রকৃত বীর।",
-        "স্বপ্ন সেটাই যা তোমাকে ঘুমাতে দেয় না।",
-        "কর্মই ধর্ম।",
-        "সাহসীরাই ইতিহাস গড়ে।",
-        "আশা কখনো হারাতে নেই।",
-        "যে পরিশ্রম করে, সময় তার পক্ষে থাকে।",
-        "নিজের পথ নিজেকেই তৈরি করতে হয়।",
-        "শিক্ষাই জাতির মেরুদণ্ড।",
-        "যে হারতে শেখে, সেই জিততে শেখে।",
-        "মানুষ তার চিন্তার প্রতিচ্ছবি।",
-        "সততাই সর্বোৎকৃষ্ট নীতি।",
-        "কাজের মধ্য দিয়েই মানুষ চেনা যায়।",
-        "যে সময়কে মূল্য দেয়, সময় তাকে মূল্যবান করে।",
-        "ভালোবাসা দিয়ে জয় করা যায় সব কিছু।",
-        "নিজের স্বপ্নের পিছনে ছুটতে ভয় পেয়ো না।",
-        "যা তুমি চাও, তার জন্য পরিশ্রম করো।",
-        "আজকের প্রচেষ্টাই আগামীর ফলাফল।",
-        "মন শক্ত থাকলে পথ আপনাআপনি খুলে যায়।",
-        "একটি ভালো বই একজন প্রকৃত বন্ধু।",
-        "যে নিজেকে ভালোবাসে, সে অন্যকেও ভালোবাসতে পারে।",
-        "সাহস হলো ভয়ের অনুপস্থিতি নয়, ভয়কে জয় করা।",
-        "পরিবর্তনই একমাত্র চিরস্থায়ী সত্য।",
-        "যে কষ্ট করে না, সে কিছুই পায় না।",
-        "বিশ্বাস পাহাড়ও সরাতে পারে।",
-        "নিজের কাজে সৎ থাকো, ফলাফল আপনাআপনি আসবে।",
-        "প্রতিটি দিন একটি নতুন সুযোগ।",
-        "যে থেমে থাকে না, সে-ই বিজয়ী হয়।",
-        "কষ্ট ছাড়া কেষ্ট মেলে না।",
-        "নিজের লক্ষ্যে অবিচল থাকো।",
-        "সময়ের মূল্য বোঝাই বুদ্ধিমানের কাজ।",
-        "মানুষ ভুল করেই শেখে।",
-        "যে হাল ছাড়ে না, সে-ই শেষ পর্যন্ত জেতে।",
-        "আত্মবিশ্বাসই তোমার সবচেয়ে বড় সম্পদ।",
-        "কঠোর পরিশ্রমের কোনো বিকল্প নেই।",
-        "স্বপ্ন দেখো, পরিকল্পনা করো, বাস্তবায়ন করো।",
-        "যে আজকের কাজ কালকের জন্য ফেলে রাখে, সে পিছিয়ে যায়।",
-        "মনের জোরই আসল শক্তি।",
-        "প্রতিটি ব্যর্থতা একটি নতুন শিক্ষা।",
-        "নিজের সীমাবদ্ধতাকে সুযোগে পরিণত করো।",
-        "যে চেষ্টা করে, সে-ই এগিয়ে যায়।",
-        "সাফল্যের কোনো শর্টকাট নেই।",
-        "মানুষের আসল পরিচয় তার কাজে।",
-        "যে নিজের ভুল স্বীকার করে, সে বড় মনের মানুষ।",
-        "সময়মতো সিদ্ধান্ত নেওয়াই বুদ্ধিমানের কাজ।",
-        "প্রতিটি প্রশ্নের উত্তর ধৈর্যের মধ্যে লুকিয়ে থাকে।",
-        "যে স্বপ্ন দেখে না, সে কিছুই অর্জন করতে পারে না।",
-        "কঠিন সময়ই মানুষের প্রকৃত পরিচয় বহন করে।",
-        "নিজের কাজে গর্বিত হও।",
-        "যে অন্যের ভালো চায়, তার নিজের ভালো হয়।",
-        "প্রতিটি সূর্যোদয় নতুন আশার বার্তা নিয়ে আসে।",
-        "মানুষ যা ভাবে, তাই হয়ে ওঠে।",
-        "যে হাসতে জানে, সে জিততে জানে।",
-        "নিজের প্রতি সৎ থাকাই সবচেয়ে বড় গুণ।",
-        "কাজ করলে ভুল হবেই, তবে থেমে থাকা যাবে না।",
-        "সময়ের সাথে তাল মিলিয়ে চলাই বুদ্ধিমানের কাজ।",
-        "যে নিজের ভয়কে জয় করে, সে সবকিছু জয় করতে পারে।",
-        "প্রতিটি ছোট পদক্ষেপই বড় লক্ষ্যের দিকে নিয়ে যায়।",
-        "মনের শান্তিই প্রকৃত সম্পদ।",
-        "যে নিজের কাজকে ভালোবাসে, সে কখনো ক্লান্ত হয় না।",
-        "কঠোর পরিশ্রম কখনো মিথ্যা কথা বলে না।",
-        "নিজের স্বপ্নকে বাস্তবে রূপ দিতে সাহসী হও।",
-        "যে জ্ঞান অর্জন করে, সে কখনো দরিদ্র হয় না।",
-        "প্রতিটি ব্যর্থতাই সাফল্যের দিকে একটি পদক্ষেপ।",
-        "মানুষের চরিত্রই তার আসল পরিচয়।",
-        "যে সময় নষ্ট করে, সে জীবন নষ্ট করে।",
-        "নিজের কাজে মনোযোগী হও, ফলাফল আপনাআপনি আসবে।",
-        "সাহসী মানুষেরা কখনো হার মানে না।",
-        "যে অন্যকে সম্মান করে, সে সম্মান পায়।",
-        "প্রতিটি দিন শেখার একটি নতুন সুযোগ।",
-        "মনোবল শক্ত থাকলে কোনো বাধাই বড় নয়।",
-        "যে নিজের কথা রাখে, সে বিশ্বাসযোগ্য হয়।",
-        "কঠিন পথই সবচেয়ে সুন্দর গন্তব্যে নিয়ে যায়।",
-        "নিজের সামর্থ্যে বিশ্বাস রাখো।",
-        "যে হাল ছাড়ে না, ভাগ্য তার সহায় হয়।",
-        "প্রতিটি অভিজ্ঞতাই একটি মূল্যবান শিক্ষা।",
-        "মানুষ তার কর্মেই বিচার্য, কথায় নয়।",
-        "যে নিজের ভুল থেকে শেখে না, সে বারবার হোঁচট খায়।",
-        "সাফল্য একদিনে আসে না, এটি ধারাবাহিক প্রচেষ্টার ফল।"
+        "CCPLC CCTV সার্ভারে আপনাকে স্বাগতম।",
+        "নিরাপদ ও নিরবচ্ছিন্ন লাইভ স্ট্রিম সেশন সক্রিয় রয়েছে।",
+        "Crown Cement — Building a Stronger Tomorrow."
     ];
 
     function pickRandomQuote() {
@@ -502,8 +430,16 @@
         }
         grid.innerHTML = list.map(ch => {
             let img = (ch.logo && ch.logo.startsWith('http')) ? `<img class="ch-logo" src="${ch.logo}">` : `<span class="ch-logo-fallback">📺</span>`;
-            return `<div class="item" onclick='playChannel(${JSON.stringify(ch)}, this)'>${img}<div class="ch-name">${ch.name}</div></div>`;
+            
+            // Channel click handler with encoded URL to obscure source
+            const safeData = btoa(encodeURIComponent(JSON.stringify(ch)));
+            return `<div class="item" onclick='playChannelFromData("${safeData}", this)'>${img}<div class="ch-name">${ch.name}</div></div>`;
         }).join('');
+    }
+
+    function playChannelFromData(encodedCh, el) {
+        const ch = JSON.parse(decodeURIComponent(atob(encodedCh)));
+        playChannel(ch, el);
     }
 
     function filterChannels() {
@@ -523,7 +459,7 @@
 
     function playChannel(ch, el) {
         document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
-        el.classList.add('active');
+        if(el) el.classList.add('active');
         
         const v = document.getElementById('vjs-player');
         const f = document.getElementById('iframe-player');
