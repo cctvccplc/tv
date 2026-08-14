@@ -348,7 +348,7 @@
 
     const QUOTES = [
         "CCPLC CCTV সার্ভারে আপনাকে স্বাগতম।",
-        "নিরাপদ ও নিরবচ্ছিন্ন লাইভ স্ট্রিম সেশন সক্রিয় রয়েছে।",
+        "নিরাপদ ও নিরবচ্ছিন্ন লাইভ স্ট্রিম সেশন সক্রিয় রয়েছে।",
         "Crown Cement — Building a Stronger Tomorrow."
     ];
 
@@ -365,7 +365,7 @@
     }
 
     setInterval(updateSlidingInfo, 1000);
-    setInterval(pickRandomQuote, 30000); // প্রতি ৩০ সেকেন্ডে নতুন quote
+    setInterval(pickRandomQuote, 30000);
 
     window.onload = async () => {
         pickRandomQuote();
@@ -430,8 +430,6 @@
         }
         grid.innerHTML = list.map(ch => {
             let img = (ch.logo && ch.logo.startsWith('http')) ? `<img class="ch-logo" src="${ch.logo}">` : `<span class="ch-logo-fallback">📺</span>`;
-            
-            // Channel click handler with encoded URL to obscure source
             const safeData = btoa(encodeURIComponent(JSON.stringify(ch)));
             return `<div class="item" onclick='playChannelFromData("${safeData}", this)'>${img}<div class="ch-name">${ch.name}</div></div>`;
         }).join('');
@@ -472,7 +470,14 @@
         } else { 
             f.style.display = 'none'; 
             v.parentElement.style.display = 'block'; 
-            tvPlayer.src({ src: ch.url, type: 'application/x-mpegURL' }); 
+            
+            // স্বয়ংক্রিয়ভাবে ফরম্যাট ডিটেক্ট করবে (MP4 অথবা HLS)
+            let videoType = 'application/x-mpegURL';
+            if (ch.url.includes('.mp4') || ch.url.includes('videoplayback')) {
+                videoType = 'video/mp4';
+            }
+
+            tvPlayer.src({ src: ch.url, type: videoType }); 
             tvPlayer.play(); 
         }
     }
